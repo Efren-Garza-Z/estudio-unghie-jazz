@@ -1,35 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+// Importamos los componentes de la nueva estructura
+import Header from './components/Header';
+import Footer from './components/Footer';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Importamos las vistas (las pantallas completas)
+import LandingPage from './views/LandingPage';
+import AppointmentScreen from './views/AppointmentScreen';
+import ServicesGalleryScreen from './views/ServicesGalleryScreen'; 
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const App = () => {
+    // Uso de estado para la navegación simple entre vistas
+    const [currentView, setCurrentView] = useState('Home');
 
-export default App
+    // Mapeo de vistas
+    const renderView = () => {
+        switch (currentView) {
+            case 'Gallery':
+                return <ServicesGalleryScreen />;
+            case 'Appointment':
+                return <AppointmentScreen />;
+            case 'Home':
+            default:
+                return <LandingPage setView={setCurrentView} />;
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col antialiased">
+            <style jsx global>{`
+                .font-script {
+                    font-family: 'Dancing Script', cursive; 
+                }
+            `}</style>
+            
+            {/* Pasamos el control de la vista al Header */}
+            <Header setView={setCurrentView} currentView={currentView} />
+            
+            <main className="flex-grow">
+                {renderView()}
+            </main>
+            
+            <Footer />
+        </div>
+    );
+};
+
+export default App;
