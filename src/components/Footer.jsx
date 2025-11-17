@@ -1,6 +1,6 @@
 import React from 'react';
 import { Instagram, Facebook, MapPin, Phone, MessageCircle } from 'lucide-react';
-import QRCodeGenerator from './QRCodeGenerator'; 
+import qrWH from '../assets/QR_WH.jpeg'; 
 
 const socialLinks = {
     // Estas URLs deberán ser actualizadas con la información real del cliente
@@ -60,7 +60,7 @@ const Footer = () => (
                 <div className="flex flex-col items-center md:items-start space-y-4">
                     <h4 className="text-xl font-semibold text-gold-accent">¡Agenda Rápido!</h4>
                     {/* Nota: Asegúrate de actualizar la URL con tu dominio real una vez lo conectes */}
-                    <img src={"../src/assets/QR_WH.jpeg"} alt="Código QR para agendar cita" className="w-36 h-36" />
+                    <img src={qrWH} alt="Código QR para agendar cita" className="w-36 h-36" />
                 </div>
             </div>
 
