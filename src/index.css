@@ -1,4 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Cualquier CSS global adicional va después */
+
+/* ESTILO GLOBAL: Aplica la paleta oscura y la fuente 'Inter' al cuerpo */
+body {
+  background-color: theme('colors.dark-bg'); 
+  color: theme('colors.text-light');
+  font-family: theme('fontFamily.sans');
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Clases de utilidad para la fuente cursiva */
+.font-script {
+    font-family: 'Dancing Script', cursive; 
+}
+
+/* Clase global para el efecto de transparencia tipo iOS (Glassmorphism) */
+.glassmorphism {
+  background-color: rgba(28, 28, 30, 0.6); /* dark-surface con transparencia */
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Borde sutil */
+}
