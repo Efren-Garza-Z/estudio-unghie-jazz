@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Calendar, Sparkles, Search, BellRing, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
-const servicesData = [ // Para el selector de servicios
-    { name: 'Manicura (limpieza)', price: '$25.00' },
-    { name: 'Gel semipermanente', price: '$40.00' },
-    { name: 'Polygel', price: '$55.00' },
-    { name: 'Soft Gel / Dual System', price: '$60.00' },
+// Datos de servicios sin precios
+const servicesData = [
+    { name: 'Manicura (limpieza)' },
+    { name: 'Gel semipermanente' },
+    { name: 'Polygel' },
+    { name: 'Soft Gel / Dual System' },
 ];
 
-// Datos simulados para el calendario (Puedes expandir esto)
+// Datos de días del calendario (simulación)
 const calendarDays = [
     { day: 26, month: 'May' }, { day: 27, month: 'May' }, { day: 28, month: 'May' }, { day: 29, month: 'May' }, { day: 30, month: 'May' }, { day: 31, month: 'May' }, { day: 1, month: 'Jun' },
     { day: 2, month: 'Jun' }, { day: 3, month: 'Jun' }, { day: 4, month: 'Jun' }, { day: 5, month: 'Jun' }, { day: 6, month: 'Jun' }, { day: 7, month: 'Jun' }, { day: 8, month: 'Jun' },
@@ -40,10 +41,10 @@ const AppointmentScreen = () => {
                 </div>
             </div>
 
-            {/* Próxima Cita (como en Image 2) */}
+            {/* Próxima Cita */}
             <div className="bg-dark-card p-6 rounded-3xl shadow-ios-card mb-8 border border-white/10 flex items-center justify-between">
                 <div className="flex items-center">
-                    <div className="bg-accent-pink/20 text-accent-pink p-4 rounded-2xl text-center mr-4">
+                    <div className="bg-gold-accent/20 text-gold-accent p-4 rounded-2xl text-center mr-4">
                         <p className="text-2xl font-bold">12</p>
                         <p className="text-xs uppercase">JUN</p>
                     </div>
@@ -55,13 +56,13 @@ const AppointmentScreen = () => {
                 <ArrowRight className="w-6 h-6 text-text-secondary" />
             </div>
 
-            {/* Acciones Rápidas (como en Image 2) */}
+            {/* Acciones Rápidas */}
             <div className="grid grid-cols-2 gap-4 mb-8">
                 <button 
                     onClick={() => console.log('Agendar Cita')}
                     className="flex flex-col items-center justify-center bg-dark-card p-6 rounded-3xl shadow-ios-card border border-white/10 hover:bg-dark-surface transition h-40"
                 >
-                    <Calendar className="w-10 h-10 text-accent-pink mb-3" />
+                    <Calendar className="w-10 h-10 text-gold-accent mb-3" />
                     <p className="text-text-light font-medium text-lg">Agendar Cita</p>
                     <p className="text-text-secondary text-sm text-center">Reserva tu espacio</p>
                 </button>
@@ -69,38 +70,71 @@ const AppointmentScreen = () => {
                     onClick={() => console.log('Ver Servicios')}
                     className="flex flex-col items-center justify-center bg-dark-card p-6 rounded-3xl shadow-ios-card border border-white/10 hover:bg-dark-surface transition h-40"
                 >
-                    <Sparkles className="w-10 h-10 text-accent-purple mb-3" />
+                    <Sparkles className="w-10 h-10 text-gold-accent mb-3" />
                     <p className="text-text-light font-medium text-lg">Servicios</p>
                     <p className="text-text-secondary text-sm text-center">Ver catálogo</p>
                 </button>
             </div>
 
-            {/* Tu Calendario (como en Image 2) */}
-            <div className="bg-dark-card p-6 rounded-3xl shadow-ios-card mb-8 border border-white/10">
-                <h3 className="text-xl font-bold text-text-light mb-4">Tu Calendario</h3>
-                <div className="flex justify-between items-center mb-4">
-                    <button className="p-2 rounded-full hover:bg-white/10 text-text-secondary transition">
-                        <ChevronLeft className="w-5 h-5" />
+            {/* Inicia el Formulario de Agendamiento */}
+            <h3 className="text-2xl font-bold text-text-light mb-6">Tu Calendario</h3>
+            
+            {/* Sección de Selección de Servicio */}
+            <div className="mb-6">
+                <label htmlFor="service-select" className="block text-text-light font-medium mb-3">
+                    Selecciona un Servicio:
+                </label>
+                <div className="relative">
+                    <select
+                        id="service-select"
+                        value={selectedService}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                        className="w-full bg-dark-card border border-white/10 text-text-light rounded-xl py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-gold-accent transition cursor-pointer"
+                    >
+                        <option value="" disabled>-- Selecciona un servicio --</option>
+                        {servicesData.map((service) => (
+                            // Solo muestra el nombre del servicio, el precio ha sido eliminado
+                            <option key={service.name} value={service.name}>
+                                {service.name}
+                            </option>
+                        ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gold-accent">
+                        <ChevronRight className="w-5 h-5 transform rotate-90" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Sección de Calendario */}
+            <div className="bg-dark-card p-6 rounded-3xl shadow-ios-card border border-white/10 mb-8">
+                <div className="flex justify-between items-center mb-5 text-text-light">
+                    <button className="text-gold-accent hover:text-gold-secondary transition">
+                        <ChevronLeft className="w-7 h-7" />
                     </button>
-                    <span className="text-text-light font-semibold text-lg">Junio 2024</span>
-                    <button className="p-2 rounded-full hover:bg-white/10 text-text-secondary transition">
-                        <ChevronRight className="w-5 h-5" />
+                    <h4 className="text-xl font-semibold">Junio 2024</h4>
+                    <button className="text-gold-accent hover:text-gold-secondary transition">
+                        <ChevronRight className="w-7 h-7" />
                     </button>
                 </div>
-                <div className="grid grid-cols-7 text-center gap-2">
+                
+                {/* Días de la semana */}
+                <div className="grid grid-cols-7 text-center text-sm text-text-secondary font-medium mb-3">
                     {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'].map(day => (
-                        <div key={day} className="text-text-secondary text-sm font-medium">{day}</div>
+                        <span key={day}>{day}</span>
                     ))}
+                </div>
+
+                {/* Días del mes */}
+                <div className="grid grid-cols-7 text-center gap-1">
                     {calendarDays.map((date, index) => (
-                        <div 
+                        <div
                             key={index}
                             className={`
-                                p-2 rounded-full text-center text-sm cursor-pointer
+                                flex items-center justify-center w-full aspect-square rounded-full transition duration-150
+                                ${date.month !== 'Jun' ? 'text-text-placeholder opacity-50' : ''}
                                 ${date.isSelected 
-                                    ? 'bg-accent-pink text-white font-bold' 
-                                    : date.month !== 'Jun' 
-                                        ? 'text-text-placeholder' 
-                                        : 'text-text-light hover:bg-dark-surface'}
+                                    ? 'bg-gold-accent text-dark-bg font-bold shadow-md' 
+                                    : 'text-text-light hover:bg-white/10 cursor-pointer'}
                             `}
                         >
                             {date.day}
@@ -108,74 +142,13 @@ const AppointmentScreen = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Formulario de Reserva (Detallado) */}
-            <div className="bg-dark-card p-6 rounded-3xl shadow-ios-card border border-white/10">
-                <h3 className="text-xl font-bold text-text-light mb-4">Detalles de Reserva</h3>
-                <form className="space-y-4">
-                    <div>
-                        <label htmlFor="service" className="block text-text-secondary text-sm font-medium mb-2">Servicio</label>
-                        <select 
-                            id="service" 
-                            className="w-full p-3 rounded-xl bg-dark-surface text-text-light border border-white/10 focus:ring-accent-pink focus:border-accent-pink"
-                            value={selectedService}
-                            onChange={(e) => setSelectedService(e.target.value)}
-                            required
-                        >
-                            <option value="" className="text-text-placeholder">Selecciona tu servicio...</option>
-                            {servicesData.map(s => (
-                                <option key={s.name} value={s.name} className="bg-dark-surface text-text-light">
-                                    {s.name} ({s.price})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label htmlFor="date" className="block text-text-secondary text-sm font-medium mb-2">Fecha</label>
-                        <input 
-                            type="date" 
-                            id="date" 
-                            className="w-full p-3 rounded-xl bg-dark-surface text-text-light border border-white/10 focus:ring-accent-pink focus:border-accent-pink" 
-                            required 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="time" className="block text-text-secondary text-sm font-medium mb-2">Hora</label>
-                        <input 
-                            type="time" 
-                            id="time" 
-                            className="w-full p-3 rounded-xl bg-dark-surface text-text-light border border-white/10 focus:ring-accent-pink focus:border-accent-pink" 
-                            required 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="name" className="block text-text-secondary text-sm font-medium mb-2">Nombre Completo</label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            placeholder="Tu nombre" 
-                            className="w-full p-3 rounded-xl bg-dark-surface text-text-light border border-white/10 placeholder-text-placeholder focus:ring-accent-pink focus:border-accent-pink" 
-                            required 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="phone" className="block text-text-secondary text-sm font-medium mb-2">Teléfono / WhatsApp</label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            placeholder="+52 221 156 2234" 
-                            className="w-full p-3 rounded-xl bg-dark-surface text-text-light border border-white/10 placeholder-text-placeholder focus:ring-accent-pink focus:border-accent-pink" 
-                            required 
-                        />
-                    </div>
-                    
-                    <button 
-                        type="submit" 
-                        className="w-full py-3 bg-accent-pink text-text-light font-bold rounded-2xl hover:bg-accent-purple transition duration-300 transform hover:scale-[1.01] shadow-neumorphic-md text-lg"
-                    >
-                        Confirmar Reserva
-                    </button>
-                </form>
+            
+            {/* Promociones / Call to Action */}
+            <div className="text-center">
+                <h3 className="text-2xl font-bold text-gold-accent mb-4">Promociones</h3>
+                <p className="text-text-secondary mb-6">
+                    Consulta nuestras ofertas especiales de temporada y diseños exclusivos del mes.
+                </p>
             </div>
         </div>
     );
