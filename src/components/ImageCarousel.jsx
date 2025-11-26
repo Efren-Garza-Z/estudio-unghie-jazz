@@ -69,7 +69,7 @@ const ImageCarousel = ({ title, images = [] }) => { // FIX APLICADO: Valor prede
         <div className="m-auto mb-12 bg-dark-card rounded-3xl p-6 shadow-2xl border border-white/10 min-w-fit">
             <h3 className="text-3xl font-bold text-gold-accent mb-6 px-2">{title}</h3>
 
-            <div className="relative w-3/4 overflow-hidden rounded-3xl h-auto md:h-96 m-auto" style={{ height: '75vh' }}>
+            <div className="relative w-3/4 overflow-hidden rounded-3xl h-auto md:h-96 m-auto" style={{ height: '60vh' }}>
                 
                 {/* Contenedor de las imágenes del Carrusel */}
                 <div 
@@ -94,7 +94,7 @@ const ImageCarousel = ({ title, images = [] }) => { // FIX APLICADO: Valor prede
                 </div>
 
                 {/* Indicadores (Puntos) */}
-                <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
+                <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-2/3 space-x-4 rtl:space-x-reverse m-auto">
                     {images.map((_, index) => (
                         <button 
                             key={index}
