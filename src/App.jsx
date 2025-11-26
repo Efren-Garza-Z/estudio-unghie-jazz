@@ -6,8 +6,9 @@ import Footer from './components/Footer';
 
 // Importamos las vistas (las pantallas completas)
 import LandingPage from './views/LandingPage';
-import AppointmentScreen from './views/AppointmentScreen';
+import AppointmentScreen from './views/dates/AppointmentScreen';
 import ServicesGalleryScreen from './views/ServicesGalleryScreen'; 
+import 'flowbite';
 
 const App = () => {
   return (
