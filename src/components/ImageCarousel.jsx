@@ -55,10 +55,6 @@ const ImageCarousel = ({ title, images = [] }) => { // FIX APLICADO: Valor prede
         setCurrentIndex(newIndex);
     }, [currentIndex, totalImages]);
 
-    // Función para ir a un índice específico (usado por los puntos)
-    const goToSlide = (index) => {
-        setCurrentIndex(index);
-    };
 
     // Handler para abrir el modal de zoom
     const handleZoom = (imgSrc) => {
@@ -66,14 +62,14 @@ const ImageCarousel = ({ title, images = [] }) => { // FIX APLICADO: Valor prede
     };
 
     return (
-        <div className="m-auto mb-12 bg-dark-card rounded-3xl p-6 shadow-2xl border border-white/10 min-w-fit">
+        <div className="mb-12 bg-dark-card rounded-3xl p-6 shadow-2xl border border-white/10">
             <h3 className="text-3xl font-bold text-gold-accent mb-6 px-2">{title}</h3>
 
-            <div className="relative w-3/4 overflow-hidden rounded-3xl h-auto md:h-96 m-auto" style={{ height: '60vh' }}>
+            <div className="relative w-full overflow-hidden rounded-2xl h-64 md:h-96">
                 
                 {/* Contenedor de las imágenes del Carrusel */}
                 <div 
-                    className="flex h-full w-auto transition-transform duration-700 ease-in-out" 
+                    className="flex h-full transition-transform duration-700 ease-in-out" 
                     style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                 >
                     {images.map((imgSrc, index) => (
@@ -93,19 +89,6 @@ const ImageCarousel = ({ title, images = [] }) => { // FIX APLICADO: Valor prede
                     ))}
                 </div>
 
-                {/* Indicadores (Puntos) */}
-                <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-2/3 space-x-4 rtl:space-x-reverse m-auto">
-                    {images.map((_, index) => (
-                        <button 
-                            key={index}
-                            type="button" 
-                            className={`w-3 h-3 rounded-full transition-colors duration-300 ${currentIndex === index ? 'bg-gold-accent' : 'bg-white/50 hover:bg-white/70'}`}
-                            aria-current={currentIndex === index ? 'true' : 'false'}
-                            aria-label={`Slide ${index + 1}`}
-                            onClick={() => goToSlide(index)}
-                        ></button>
-                    ))}
-                </div>
 
                 {/* Botón de Control: Anterior */}
                 <button 
