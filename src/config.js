@@ -18,10 +18,12 @@ export const firebaseConfig = {
 export const LOCAL_STORAGE_KEY = 'appointments_data';
 
 // Datos de Servicios
+
 export const servicesData = [
-    { name: "Corte de Cabello y Barba", duration: 60, price: 500, description: "Corte y diseño de barba profesional." },
-    { name: "Color y Mechas", duration: 120, price: 1500, description: "Aplicación de tinte y mechas personalizadas." },
-    { name: "Manicura y Pedicura", duration: 90, price: 750, description: "Tratamiento completo de manos y pies." },
+    { name: 'Manicura (limpieza)', duration: 60  },
+    { name: 'Gel semipermanente', duration: 90  },
+    { name: 'Polygel', duration: 120, price: 600 },
+    { name: 'Soft Gel / Dual System', duration: 120 },
 ];
 
 // Lógica de Horarios
