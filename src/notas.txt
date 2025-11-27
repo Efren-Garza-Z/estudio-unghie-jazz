@@ -1,0 +1,26 @@
+351701423134-bjh45nf31sggq56k0c7lfjj49jrnb06g.apps.googleusercontent.com
+
+npm install firebase
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD2Qvk74Qua5lro1mY1AzK8Hl63A_vmCPs",
+  authDomain: "unghie-jazz.firebaseapp.com",
+  projectId: "unghie-jazz",
+  storageBucket: "unghie-jazz.firebasestorage.app",
+  messagingSenderId: "863028124058",
+  appId: "1:863028124058:web:277d3ef681178697c58223",
+  measurementId: "G-GDX8M1JNDJ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+

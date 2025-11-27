@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 
 // Importamos las vistas (las pantallas completas)
 import LandingPage from './views/LandingPage';
-import AppointmentScreen from './views/dates/AppointmentScreen';
+import AppointmentApp from './views/apointments/AppointmentApp';
 import ServicesGalleryScreen from './views/ServicesGalleryScreen'; 
 import 'flowbite';
 
@@ -25,7 +25,7 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             
             {/* Ruta /cita para la pantalla de agendamiento */}
-            <Route path="/cita" element={<AppointmentScreen />} />
+            <Route path="/cita" element={<AppointmentApp />} />
             
             {/* Ruta /galeria para la galería de arte */}
             <Route path="/galeria" element={<ServicesGalleryScreen />} />
