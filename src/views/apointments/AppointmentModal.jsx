@@ -1,112 +1,128 @@
-// =================================================================
-// 3. COMPONENTE MODAL
-// =================================================================
-import { useState } from 'react';
-import { X, User, Mail, Phone, Clock, Zap, Calendar } from 'lucide-react';
-import { servicesData } from '../../config';
-import { saveAppointmentToFirestore, sendToGoogleCalendar } from '../../utils/utils';
+// AppointmentModal.jsx
+import { useState } from "react";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../config/firebaseConfig";
 
-// Nota: Los estilos usan clases de Tailwind CSS (dark-bg, gold-accent, etc.) que no están definidas aquí.
 
-const AppointmentModal = ({ isOpen, onClose, slot, date, serviceName, onConfirm }) => {
-    const [formData, setFormData] = useState({
-        clientName: '',
-        email: '',
-        phone: ''
+export default function AppointmentModal({
+  isOpen,
+  setIsOpen,
+  serviceDetails,
+  selectedDate,
+}) {
+  // ❗ Hooks siempre al inicio del componente
+  const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  });
+
+  if (!isOpen) return null;
+  if (!serviceDetails) return null;
+
+  const date = new Date(selectedDate);
+  const end = new Date(date);
+  end.setMinutes(end.getMinutes() + serviceDetails.duration);
+
+  const endString = end.toLocaleTimeString("es-MX", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+console.log("DB:", db);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const docRef = await addDoc(collection(db, "appointments"), {
+      serviceName: serviceDetails.name,
+      duration: serviceDetails.duration,
+      date: selectedDate,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      createdAt: Timestamp.now(),
     });
 
-    if (!isOpen) return null;
+    console.log("Cita guardada con ID:", docRef.id);
+    alert("Tu cita fue registrada correctamente 🎉");
 
-    const selectedService = servicesData.find(s => s.name === serviceName);
-    if (!selectedService) return null;
+    setIsOpen(false);
+    console.log("FormData antes de guardar:", formData);
 
-    // Calcular el tiempo de fin
-    const endTime = new Date(date); 
-    endTime.setMinutes(date.getMinutes() + selectedService.duration);
-    const endTimeString = endTime.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        const appointmentDetails = {
-            ...formData,
-            serviceName: selectedService.name,
-            duration: selectedService.duration,
-            date: date.toISOString(), // Guardamos la fecha/hora en formato ISO
-            status: 'Pendiente',
-            // Simulamos un ID único
-            id: Date.now() + Math.random().toString(36).substring(2, 9) 
-        };
-        
-        // 1. Guardar en Firestore (Simulado)
-        const firestoreSuccess = await saveAppointmentToFirestore(appointmentDetails);
-
-        if (firestoreSuccess) {
-            // 2. Ejecutar callback para actualizar el estado local (AppScreen)
-            onConfirm(appointmentDetails); 
-
-            // 3. Integración con Google Calendar (Simulado)
-            sendToGoogleCalendar(appointmentDetails);
-        } else {
-            console.error("Fallo al guardar en el servidor (simulado).");
-        }
-        
-        onClose();
-    };
-
-    return (
-        <div className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-dark-card w-full max-w-lg p-6 rounded-3xl shadow-ios-float border border-white/10 transform transition-all duration-300 scale-100">
-                {/* Contenido del Modal (Header, Detalles, Formulario) */}
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-2xl font-bold text-gold-accent flex items-center">
-                        <Zap className="w-6 h-6 mr-2" /> Confirmar Cita
-                    </h3>
-                    <button onClick={onClose} className="p-2 rounded-full text-text-light hover:bg-white/10 transition">
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-                
-                {/* Detalles de la Cita */}
-                <div className="space-y-3 mb-6 p-4 bg-dark-surface rounded-xl border border-white/5">
-                    <p className="text-lg font-semibold text-text-light">{serviceName}</p>
-                    <div className='flex items-center text-text-secondary text-sm'>
-                        <Calendar className="w-4 h-4 mr-2" /> 
-                        {date.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div className='flex items-center text-text-secondary text-sm'>
-                        <Clock className="w-4 h-4 mr-2" /> 
-                        {`${slot} - ${endTimeString} (${selectedService.duration} min)`}
-                    </div>
-                </div>
-
-                {/* Formulario de Cliente */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Campos de Nombre, Email, Teléfono */}
-                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="text" name="clientName" placeholder="Tu Nombre Completo" value={formData.clientName} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
-                    <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="email" name="email" placeholder="Email (ej: yo@correo.com)" value={formData.email} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
-                    <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="tel" name="phone" placeholder="Teléfono (ej: 55 1234 5678)" value={formData.phone} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
-
-                    <button type="submit" className="w-full inline-flex items-center justify-center px-8 py-4 mt-6 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-gold-accent hover:bg-gold-secondary focus:outline-none focus:ring-4 focus:ring-gold-accent/50 transition duration-300">
-                        Confirmar y Agendar
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
+Object.entries(formData).forEach(([key, value]) => {
+  if (value === undefined) {
+    console.warn(`⚠️ El campo ${key} está llegando como undefined`);
+  }
+});
+  } catch (error) {
+    console.error("Error al guardar:", error);
+    alert("Hubo un error al guardar la cita.");
+  }
 };
 
-export default AppointmentModal;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Confirmar cita</h2>
+
+        <p>
+          Servicio: <strong>{serviceDetails.name}</strong>
+        </p>
+        <p>
+          Fecha: <strong>{selectedDate}</strong>
+        </p>
+        <p>
+          Termina a las: <strong>{endString}</strong>
+        </p>
+
+        <form className="mt-4" onSubmit={handleSubmit}>
+          <label className="block mb-2">Nombre</label>
+          <input
+            type="text"
+            className="border p-2 w-full rounded"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({ ...formData, name: e.target.value })
+            }
+          />
+
+          <label className="block mt-4 mb-2">Email</label>
+          <input
+            type="email"
+            className="border p-2 w-full rounded"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+          />
+
+          <label className="block mt-4 mb-2">Teléfono</label>
+          <input
+            type="text"
+            className="border p-2 w-full rounded"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+          />
+
+          <button
+            type="submit"
+            className="mt-6 w-full bg-green-600 text-white p-2 rounded"
+          >
+            Confirmar
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="mt-2 w-full bg-gray-500 text-white p-2 rounded"
+          >
+            Cancelar
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

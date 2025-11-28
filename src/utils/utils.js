@@ -1,6 +1,3 @@
-// =================================================================
-// 2. FUNCIONES DE UTILIDAD (Lógica, Fechas y Simulación de Backend)
-// =================================================================
 import { servicesData, WORK_START_HOUR, WORK_END_HOUR, SLOT_INTERVAL_MINUTES } from '../config';
 
 /**
@@ -99,17 +96,6 @@ export const buildAppointmentDate = (baseDate, slot) => {
 // SIMULACIÓN DE BACKEND (Firebase/Google Calendar)
 // -----------------------------------------------------------------
 
-export const initializeFirebase = () => {
-    console.log("Firebase simulado inicializado con éxito.");
-    // Aquí iría la lógica real de initializeApp(firebaseConfig)
-};
-
-export const saveAppointmentToFirestore = async (appointmentData) => {
-    console.log(`[Firestore Simulado] Intentando guardar cita con ID: ${appointmentData.id}`);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simula latencia
-    console.log("[Firestore Simulado] Cita guardada/actualizada en Firestore (simulado).");
-    return true;
-};
 
 export const sendToGoogleCalendar = (appointment) => {
     const serviceDetails = servicesData.find(s => s.name === appointment.serviceName);

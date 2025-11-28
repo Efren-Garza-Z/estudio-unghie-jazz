@@ -120,7 +120,7 @@ const LandingPage = () => {
                             href={socialLinks.address} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center px-6 py-3 bg-gold-secondary/20 text-gold-accent font-semibold rounded-xl hover:bg-gold-secondary/30 transition duration-200 text-sm shadow-sm"
+                            className="inline-flex items-center px-6 py-3 bg-gold-accent text-dark-bg font-semibold rounded-xl hover:bg-gold-secondary/30 transition duration-200 text-sm shadow-sm"
                         >
                             Abrir en Google Maps <MapPin className="w-5 h-5 ml-2" />
                         </a>
