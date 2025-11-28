@@ -14,16 +14,16 @@ export default {
       },
       colors: {
         // Paleta de colores iOS-like (versión Negro/Dorado)
-        'dark-bg': '#0A0A0A',         // Fondo negro muy oscuro, casi absoluto
-        'dark-surface': '#1C1C1E',    // Fondo de componentes base (un gris muy oscuro)
-        'dark-card': '#282828',       // Fondo de tarjetas/elementos anidados (un gris oscuro intermedio)
+        'dark-bg': '#F5ECF7',         // Fondo negro muy oscuro, casi absoluto
+        'dark-surface': '#EAD8F0',    // Fondo de componentes base (un gris muy oscuro)
+        'dark-card': '#EAD8F0',       // Fondo de tarjetas/elementos anidados (un gris oscuro intermedio)
         
-        'gold-accent': '#FCD700',     // Dorado principal para acentos (Gold)
-        'gold-secondary': '#DAA520',  // Dorado secundario (Goldenrod)
+        'gold-accent': '#82DDE7',     // Dorado principal para acentos (Gold)
+        'gold-secondary': '#66B6C4',  // Dorado secundario (Goldenrod)
         
-        'text-light': '#F2F2F7',      // Texto principal claro
-        'text-secondary': '#AEAEB2',  // Texto secundario
-        'text-placeholder': '#636366',// Texto placeholder
+        'text-light': '#1A1A1A',      // Texto principal claro
+        'text-secondary': '#4F4F4F',  // Texto secundario
+        'text-placeholder': '#737373',// Texto placeholder
       },
       boxShadow: {
         // Sombras suaves para el efecto "flotante"
