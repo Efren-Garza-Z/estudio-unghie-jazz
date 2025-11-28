@@ -4,8 +4,8 @@ import qrWH from '../assets/QR_WH.jpeg';
 
 const socialLinks = {
     // Estas URLs deberán ser actualizadas con la información real del cliente
-    facebook: 'https://facebook.com/tuestetica',
-    instagram: 'https://instagram.com/tuestetica',
+    facebook: 'https://www.facebook.com/share/16N4ktjTBX/',
+    instagram: 'https://www.instagram.com/estudio_unghie_jazz?igsh=d3Z6aTJhbDR2Z3Nu',
     whatsapp: 'tel:2211562234',
     phone: 'tel:2211562234',
     address: 'https://maps.app.goo.gl/79Fa9n9KRSniiZvf7',

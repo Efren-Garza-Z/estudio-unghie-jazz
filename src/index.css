@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* ESTILO GLOBAL: Aplica la paleta oscura y la fuente 'Inter' al cuerpo */
 body {
   background-color: theme('colors.dark-bg'); 
