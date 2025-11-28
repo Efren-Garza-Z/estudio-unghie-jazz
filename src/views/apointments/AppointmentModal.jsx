@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
+import { X, User, Mail, Phone, Clock, Zap, Calendar } from 'lucide-react';
+
 
 
 export default function AppointmentModal({
@@ -9,6 +11,7 @@ export default function AppointmentModal({
   setIsOpen,
   serviceDetails,
   selectedDate,
+  selectedTime,
 }) {
   // ❗ Hooks siempre al inicio del componente
   const [formData, setFormData] = useState({
@@ -33,10 +36,11 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    const docRef = await addDoc(collection(db, "appointments"), {
+    const docRef = await addDoc(collection(db, "appointment"), {
       serviceName: serviceDetails.name,
       duration: serviceDetails.duration,
       date: selectedDate,
+      time: selectedTime,
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
@@ -62,25 +66,26 @@ Object.entries(formData).forEach(([key, value]) => {
 
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Confirmar cita</h2>
+      <div className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-dark-card w-full max-w-lg p-6 rounded-3xl shadow-ios-float border border-white/10 transform transition-all duration-300 scale-100">
+          <h3 className="text-2xl font-bold text-gold-accent flex items-center">
+            <Zap className="w-6 h-6 mr-2" /> Confirmar Cita
+          </h3>
 
-        <p>
+        <p className="text-lg font-semibold text-text-light">
           Servicio: <strong>{serviceDetails.name}</strong>
         </p>
-        <p>
-          Fecha: <strong>{selectedDate}</strong>
-        </p>
-        <p>
+        <p className="text-lg font-semibold text-text-light">Tu cita es el: {selectedDate?.toLocaleDateString()}</p>
+        <p className="text-lg font-semibold text-text-light">
           Termina a las: <strong>{endString}</strong>
         </p>
 
-        <form className="mt-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <br/>
           <label className="block mb-2">Nombre</label>
           <input
             type="text"
-            className="border p-2 w-full rounded"
+            className="w-full  border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
             value={formData.name}
             onChange={(e) =>
               setFormData({ ...formData, name: e.target.value })
@@ -90,7 +95,7 @@ Object.entries(formData).forEach(([key, value]) => {
           <label className="block mt-4 mb-2">Email</label>
           <input
             type="email"
-            className="border p-2 w-full rounded"
+            className="w-full border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
             value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
@@ -100,7 +105,7 @@ Object.entries(formData).forEach(([key, value]) => {
           <label className="block mt-4 mb-2">Teléfono</label>
           <input
             type="text"
-            className="border p-2 w-full rounded"
+            className="w-full  border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
             value={formData.phone}
             onChange={(e) =>
               setFormData({ ...formData, phone: e.target.value })
@@ -109,15 +114,14 @@ Object.entries(formData).forEach(([key, value]) => {
 
           <button
             type="submit"
-            className="mt-6 w-full bg-green-600 text-white p-2 rounded"
-          >
+            className="w-full inline-flex items-center justify-center px-8 py-4 mt-6 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-gold-accent hover:bg-gold-secondary focus:outline-none focus:ring-4 focus:ring-gold-accent/50 transition duration-300"          >
             Confirmar
           </button>
 
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="mt-2 w-full bg-gray-500 text-white p-2 rounded"
+            className="w-full inline-flex items-center justify-center px-8 py-4 mt-6 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-black hover:bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gold-accent/50 transition duration-300"
           >
             Cancelar
           </button>

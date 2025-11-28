@@ -51,3 +51,27 @@ export function getAvailableTimeSlots(date, duration, appointments = []) {
 
   return slots;
 }
+
+
+/**
+ * Helper para generar días del calendario (simula 42 días, 6 semanas)
+ */
+export const generateCalendarDays = (currentDate) => {
+  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const dayOfWeek = (startOfMonth.getDay() + 6) % 7; // Lunes = 0, Domingo = 6
+  const startDate = new Date(startOfMonth);
+  startDate.setDate(startOfMonth.getDate() - dayOfWeek);
+
+  const days = [];
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    days.push({
+      date,
+      day: date.getDate(),
+      month: date.toLocaleDateString('en-US', { month: 'short' }),
+      isCurrentMonth: date.getMonth() === currentDate.getMonth()
+    });
+  }
+  return days;
+};
