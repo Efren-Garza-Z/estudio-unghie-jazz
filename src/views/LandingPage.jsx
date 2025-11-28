@@ -114,7 +114,7 @@ const LandingPage = () => {
                             {socialLinks.addressText}
                         </p>
                         <p className="text-text-secondary text-base leading-relaxed">
-                            Por definir instrucciones claras para llegar al estudio desde puntos de referencia comunes en la ciudad.
+                            Estamos ubicados frente al gimnasio y a una cuadra paralela del Parque Hidalgo.
                         </p>
                         <a 
                             href={socialLinks.address} 
