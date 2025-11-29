@@ -1,112 +1,173 @@
-// =================================================================
-// 3. COMPONENTE MODAL
-// =================================================================
-import { useState } from 'react';
-import { X, User, Mail, Phone, Clock, Zap, Calendar } from 'lucide-react';
-import { servicesData } from '../../config';
-import { saveAppointmentToFirestore, sendToGoogleCalendar } from '../../utils/utils';
+import { useState } from "react";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../config/firebaseConfig";
+import { Zap, CheckCircle } from 'lucide-react'; // Agregué CheckCircle para el éxito
 
-// Nota: Los estilos usan clases de Tailwind CSS (dark-bg, gold-accent, etc.) que no están definidas aquí.
+export default function AppointmentModal({
+                                           isOpen,
+                                           setIsOpen,
+                                           serviceDetails,
+                                           selectedDate,
+                                           selectedTime,
+                                         }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
-const AppointmentModal = ({ isOpen, onClose, slot, date, serviceName, onConfirm }) => {
-    const [formData, setFormData] = useState({
-        clientName: '',
-        email: '',
-        phone: ''
-    });
+  // 1. Nuevo estado para controlar la vista de éxito
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Opcional: para evitar doble click
 
-    if (!isOpen) return null;
+  if (!isOpen) return null;
+  if (!serviceDetails) return null;
 
-    const selectedService = servicesData.find(s => s.name === serviceName);
-    if (!selectedService) return null;
+  const date = new Date(selectedDate);
+  const end = new Date(date);
+  end.setMinutes(end.getMinutes() + serviceDetails.duration);
+  const endString = end.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
-    // Calcular el tiempo de fin
-    const endTime = new Date(date); 
-    endTime.setMinutes(date.getMinutes() + selectedService.duration);
-    const endTimeString = endTime.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    try {
+      const docRef = await addDoc(collection(db, "appointment"), {
+        serviceName: serviceDetails.name,
+        duration: serviceDetails.duration,
+        date: selectedDate, // Asegúrate de que esto sea un string o timestamp válido, no objeto Date puro si causa error
+        time: selectedTime,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        createdAt: Timestamp.now(),
+      });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        const appointmentDetails = {
-            ...formData,
-            serviceName: selectedService.name,
-            duration: selectedService.duration,
-            date: date.toISOString(), // Guardamos la fecha/hora en formato ISO
-            status: 'Pendiente',
-            // Simulamos un ID único
-            id: Date.now() + Math.random().toString(36).substring(2, 9) 
-        };
-        
-        // 1. Guardar en Firestore (Simulado)
-        const firestoreSuccess = await saveAppointmentToFirestore(appointmentDetails);
+      console.log("Cita guardada con ID:", docRef.id);
 
-        if (firestoreSuccess) {
-            // 2. Ejecutar callback para actualizar el estado local (AppScreen)
-            onConfirm(appointmentDetails); 
+      // 2. Aquí cambiamos el estado en lugar del alert
+      setIsSuccess(true);
 
-            // 3. Integración con Google Calendar (Simulado)
-            sendToGoogleCalendar(appointmentDetails);
-        } else {
-            console.error("Fallo al guardar en el servidor (simulado).");
-        }
-        
-        onClose();
-    };
+      // NOTA: No hacemos setIsOpen(false) aquí, porque queremos que el usuario vea el mensaje de éxito primero.
 
-    return (
-        <div className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-dark-card w-full max-w-lg p-6 rounded-3xl shadow-ios-float border border-white/10 transform transition-all duration-300 scale-100">
-                {/* Contenido del Modal (Header, Detalles, Formulario) */}
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-2xl font-bold text-gold-accent flex items-center">
-                        <Zap className="w-6 h-6 mr-2" /> Confirmar Cita
-                    </h3>
-                    <button onClick={onClose} className="p-2 rounded-full text-text-light hover:bg-white/10 transition">
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-                
-                {/* Detalles de la Cita */}
-                <div className="space-y-3 mb-6 p-4 bg-dark-surface rounded-xl border border-white/5">
-                    <p className="text-lg font-semibold text-text-light">{serviceName}</p>
-                    <div className='flex items-center text-text-secondary text-sm'>
-                        <Calendar className="w-4 h-4 mr-2" /> 
-                        {date.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div className='flex items-center text-text-secondary text-sm'>
-                        <Clock className="w-4 h-4 mr-2" /> 
-                        {`${slot} - ${endTimeString} (${selectedService.duration} min)`}
-                    </div>
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      alert("Hubo un error al guardar la cita."); // Para errores sí podemos dejar un alert o usar otro estado de error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Función para cerrar todo y limpiar
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsSuccess(false); // Reseteamos para la próxima vez
+    setFormData({ name: "", email: "", phone: "" });
+  };
+
+  return (
+      <div className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-dark-card w-full max-w-lg p-6 rounded-3xl shadow-ios-float border border-white/10 transform transition-all duration-300 scale-100">
+
+          {/* 3. Renderizado Condicional: ¿Mostramos Éxito o Formulario? */}
+
+          {isSuccess ? (
+              // --- VISTA DE ÉXITO ---
+              <div className="text-center py-6 animate-fadeIn">
+                <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600">
+                  <CheckCircle className="w-10 h-10" />
                 </div>
 
-                {/* Formulario de Cliente */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Campos de Nombre, Email, Teléfono */}
-                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="text" name="clientName" placeholder="Tu Nombre Completo" value={formData.clientName} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
-                    <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="email" name="email" placeholder="Email (ej: yo@correo.com)" value={formData.email} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
-                    <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                        <input type="tel" name="phone" placeholder="Teléfono (ej: 55 1234 5678)" value={formData.phone} onChange={handleChange} required className="w-full bg-dark-surface border border-white/10 text-text-light rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition" />
-                    </div>
+                <h3 className="text-2xl font-bold text-white mb-2">¡Cita Confirmada!</h3>
 
-                    <button type="submit" className="w-full inline-flex items-center justify-center px-8 py-4 mt-6 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-gold-accent hover:bg-gold-secondary focus:outline-none focus:ring-4 focus:ring-gold-accent/50 transition duration-300">
-                        Confirmar y Agendar
+                {/* Tu alerta personalizada integrada aquí */}
+                <div className="p-4 mb-6 text-sm text-green-800 rounded-xl bg-green-100 border border-green-200" role="alert">
+                  <span className="font-bold block text-base">¡Todo listo!</span>
+                  Tu cita fue registrada correctamente. Te esperamos.
+                </div>
+
+                <button
+                    onClick={handleClose}
+                    className="w-full inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-gold-accent hover:bg-gold-secondary transition duration-300"
+                >
+                  Entendido
+                </button>
+              </div>
+
+          ) : (
+              // --- VISTA DEL FORMULARIO ---
+              <>
+                <h3 className="text-2xl font-bold text-gold-accent flex items-center mb-4">
+                  <Zap className="w-6 h-6 mr-2" /> Confirmar Cita
+                </h3>
+
+                <p className="text-lg font-semibold text-text-light">
+                  Servicio: <strong>{serviceDetails.name}</strong>
+                </p>
+                <p className="text-lg font-semibold text-text-light">
+                  {/* Agregué el .toString() por seguridad con fechas */}
+                  Tu cita es el: {new Date(selectedDate).toLocaleDateString()}
+                </p>
+                <p className="text-lg font-semibold text-text-light mb-6">
+                  Termina a las: <strong>{endString}</strong>
+                </p>
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <div>
+                    <label className="block mb-2 text-text-light">Nombre</label>
+                    <input
+                        required
+                        type="text"
+                        className="w-full border border-white/10 bg-dark-bg/50 text-text-light rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 text-text-light">Email</label>
+                    <input
+                        required
+                        type="email"
+                        className="w-full border border-white/10 bg-dark-bg/50 text-text-light rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 text-text-light">Teléfono</label>
+                    <input
+                        required
+                        type="tel"
+                        className="w-full border border-white/10 bg-dark-bg/50 text-text-light rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:ring-2 focus:ring-gold-accent transition"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="pt-4 flex flex-col gap-3">
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-2xl shadow-lg text-dark-bg bg-gold-accent hover:bg-gold-secondary focus:outline-none disabled:opacity-50 transition duration-300"
+                    >
+                      {isLoading ? "Confirmando..." : "Confirmar"}
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-2xl text-text-light bg-white/5 hover:bg-white/10 transition duration-300"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </form>
-            </div>
+              </>
+          )}
         </div>
-    );
-};
-
-export default AppointmentModal;
+      </div>
+  );
+}

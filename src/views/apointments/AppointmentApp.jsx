@@ -1,85 +1,31 @@
-// =================================================================
-// 4. COMPONENTE PRINCIPAL DE APLICACIÓN
-// =================================================================
+// AppointmentApp.jsx
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Calendar, Sparkles, Search, BellRing, ChevronLeft, ChevronRight, ArrowRight, Clock } from 'lucide-react';
+import AppointmentModal from "./AppointmentModal";
+import { getAvailableTimeSlots, generateCalendarDays } from "../../utils/calendarUtils";
+import { servicesData } from "../../config";
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react'; // Eliminé iconos no usados para limpiar
 
-import AppointmentModal from './AppointmentModal';
-import { 
-    servicesData, 
-    LOCAL_STORAGE_KEY 
-} from '../../config';
-import { 
-    initializeFirebase, 
-    getAvailableTimeSlots, 
-    generateCalendarDays, 
-    buildAppointmentDate 
-} from '../../utils/utils';
-
-
-const AppointmentApp = () => {
-    // Inicializar Firebase al cargar (Simulado)
-    useEffect(() => {
-        initializeFirebase();
-    }, []);
-
-    // 1. Estados principales
-    const [selectedService, setSelectedService] = useState(servicesData[0].name);
-    const [selectedDate, setSelectedDate] = useState(() => {
-        const now = new Date();
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate()); // solo día
-    });
-    const [currentCalendarView, setCurrentCalendarView] = useState(new Date());
-    // appointments: init desde localStorage
-    const [appointments, setAppointments] = useState(() => {
-        try {
-            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-            const parsed = stored ? JSON.parse(stored) : [];
-            return parsed.sort((a, b) => new Date(a.date) - new Date(b.date));
-        } catch (e) {
-            console.error("Error al cargar citas:", e);
-            return [];
-        }
-    });
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
+export default function AppointmentApp({ appointments }) {
+    const [selectedService, setSelectedService] = useState("");
+    // CAMBIO 1: Inicializar como null para verificar tipos fácilmente
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [availableSlots, setAvailableSlots] = useState([]);
     const [selectedSlotTime, setSelectedSlotTime] = useState(null);
+    const [serviceDetails, setServiceDetails] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentCalendarView, setCurrentCalendarView] = useState(new Date());
 
-    // Guardar appointments en localStorage cuando cambian
-    useEffect(() => {
-        try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appointments));
-        } catch (e) {
-            console.error("Error guardando citas en localStorage:", e);
-        }
-    }, [appointments]);
+    const goToPreviousMonth = () => setCurrentCalendarView(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    const goToNextMonth = () => setCurrentCalendarView(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
 
-    // 2. Valores Derivados (usando useMemo)
-    const upcomingAppointment = useMemo(() => {
-        const now = new Date();
-        const futureAppointments = appointments
-            .filter(app => new Date(app.date) > now)
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-        return futureAppointments[0];
-    }, [appointments]);
-
-    const serviceDetails = useMemo(() =>
-        servicesData.find(s => s.name === selectedService)
-    , [selectedService]);
-
-    const availableSlots = useMemo(() => {
-        if (!selectedDate || !serviceDetails) return [];
-        return getAvailableTimeSlots(selectedDate, serviceDetails.duration, appointments);
-    }, [selectedDate, serviceDetails, appointments]);
-    
     const calendarDays = useMemo(() => generateCalendarDays(currentCalendarView), [currentCalendarView]);
     const currentMonthYear = currentCalendarView.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
-    // 3. Handlers de Interfaz (usando useCallback)
     const handleDayClick = useCallback((date) => {
+        // Normalizamos la fecha para evitar problemas de zonas horarias
         const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         setSelectedDate(dateOnly);
-        setSelectedSlotTime(null);
+        setSelectedSlotTime(null); // Reseteamos la hora si cambia el día
     }, []);
 
     const handleSlotClick = useCallback((slotTime) => {
@@ -87,100 +33,98 @@ const AppointmentApp = () => {
         setIsModalOpen(true);
     }, []);
 
-    const handleConfirmAppointment = useCallback((newAppointment) => {
-        setAppointments(prev => {
-            const updated = [...prev, newAppointment];
-            updated.sort((a, b) => new Date(a.date) - new Date(b.date));
-            return updated;
-        });
-        setSelectedSlotTime(null);
-        setIsModalOpen(false);
-    }, []);
+    // 1. Cargar detalles del servicio
+    useEffect(() => {
+        const details = servicesData.find((s) => s.name === selectedService) || null;
+        queueMicrotask(() => setServiceDetails(details));
+        queueMicrotask(() => setAvailableSlots([])); // Limpiamos slots si cambia el servicio
+        queueMicrotask(() => setSelectedSlotTime(null));
+    }, [selectedService]);
 
-    const handleCloseModal = useCallback(() => {
-        setIsModalOpen(false);
-        setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate()));
-    }, []);
+    // 2. Calcular slots disponibles
+    useEffect(() => {
+        if (!selectedDate || !serviceDetails) {
+            queueMicrotask(()=> setAvailableSlots([]));
+            return;
+        }
 
-    const goToPreviousMonth = () => setCurrentCalendarView(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-    const goToNextMonth = () => setCurrentCalendarView(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+        // --- CORRECCIÓN CRÍTICA ---
+        // Tu utilidad antigua probablemente espera un string "YYYY-MM-DD".
+        // Convertimos el objeto Date a string formato ISO (parte de fecha).
+        // Nota: Ajusta esto si tu utilidad espera otro formato.
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
 
-    // Helper para formatear
-    const formatAppointmentTime = (app) => {
-        if (!app) return null;
-        const start = new Date(app.date);
-        const end = new Date(start.getTime() + app.duration * 60000);
-        const startTime = start.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true });
-        const endTime = end.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true });
-        return `${startTime} - ${endTime}`;
-    };
+        try {
+            const newSlots = getAvailableTimeSlots(
+                dateString, // Pasamos el string, no el objeto Date
+                serviceDetails.duration,
+                appointments
+            );
+            queueMicrotask(() => setAvailableSlots(newSlots));
+        } catch (error) {
+            console.error("Error calculando slots:", error);
+            queueMicrotask(() => setAvailableSlots([]));
+        }
+    }, [selectedDate, serviceDetails, appointments]);
 
     return (
-        <div className="max-w-md mx-auto p-4 sm:p-6 mt-8">
-            {/* Sección de Bienvenida/Próxima Cita */}
-            {/* ... (Tu JSX de la sección de bienvenida y próxima cita) ... */}
-            
-            {/* Sección de Agendamiento */}
-            <h3 className="text-2xl font-bold text-text-light mb-6">Nuevo Agendamiento</h3>
+        <div className="p-4 max-w-xl mx-auto">
+            <h1 className="text-2xl font-bold mb-4">Selecciona un Servicio:</h1>
 
-            {/* Selector de Servicio */}
+            {/* Selección de servicio */}
             <div className="mb-6">
-                <label htmlFor="service-select" className="block text-text-light font-medium mb-3">
-                    Selecciona un Servicio:
-                </label>
-                <div className="relative">
-                    <select
-                        id="service-select"
-                        value={selectedService}
-                        onChange={(e) => {
-                            setSelectedService(e.target.value);
-                            setSelectedSlotTime(null);
-                        }}
-                        className="w-full bg-dark-card border border-white/10 text-text-light rounded-xl py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-gold-accent transition cursor-pointer"
-                    >
-                        {servicesData.map((service) => (
-                            <option key={service.name} value={service.name}>
-                                {`${service.name} (${service.duration} min)`}
-                            </option>
-                        ))}
-                    </select>
-                    {/* ... (Icono de flecha) ... */}
-                </div>
-                {serviceDetails && (
-                    <p className="text-xs text-text-secondary mt-2">Duración estimada: {serviceDetails.duration} minutos.</p>
-                )}
+
+            <label className="block mb-2 font-semibold">Servicio</label>
+                <select
+                    className="w-full bg-dark-card border border-white/10 text-text-light rounded-xl py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-gold-accent transition cursor-pointer"
+                    value={selectedService}
+                    onChange={(e) => setSelectedService(e.target.value)}
+                >
+                    <option value="">Selecciona un servicio</option>
+                    {servicesData.map((s) => (
+                        <option key={s.name} value={s.name}>
+                            {s.name} ({s.duration} min)
+                        </option>
+                    ))}
+                </select>
             </div>
 
-            {/* Calendario */}
-            <div className="bg-dark-card p-6 rounded-3xl shadow-ios-card border border-white/10 mb-8">
-                {/* Navegación del Calendario */}
-                <div className="flex justify-between items-center mb-5 text-text-light">
-                    <button onClick={goToPreviousMonth} className="text-gold-accent hover:text-gold-secondary transition"><ChevronLeft className="w-7 h-7" /></button>
+            {/* Calendario (Solo visible si hay servicio seleccionado para mejor UX, opcional) */}
+            <div className="bg-dark-card text-white p-6 rounded-3xl shadow-lg border border-white/10 mb-8">
+                {/* Navegación */}
+                <div className="flex justify-between items-center mb-5">
+                    <button onClick={goToPreviousMonth} className="hover:text-gold-accent transition"><ChevronLeft className="w-7 h-7" /></button>
                     <h4 className="text-xl font-semibold capitalize">{currentMonthYear}</h4>
-                    <button onClick={goToNextMonth} className="text-gold-accent hover:text-gold-secondary transition"><ChevronRight className="w-7 h-7" /></button>
+                    <button onClick={goToNextMonth} className="hover:text-gold-accent transition"><ChevronRight className="w-7 h-7" /></button>
                 </div>
 
-                {/* Días de la semana */}
-                <div className="grid grid-cols-7 text-center text-sm text-text-secondary font-medium mb-3">
+                {/* Días semana */}
+                <div className="grid grid-cols-7 text-center text-sm text-gray-400 font-medium mb-3">
                     {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (<span key={day}>{day}</span>))}
                 </div>
 
-                {/* Días del mes */}
+                {/* Grid Días */}
                 <div className="grid grid-cols-7 text-center gap-1">
                     {calendarDays.map((dateObj, index) => {
+                        // Comparación segura de fechas
                         const isSelected = selectedDate && dateObj.date.toDateString() === selectedDate.toDateString();
-                        const isPast = dateObj.date.setHours(23,59,59,999) < new Date().getTime(); 
+                        const now = new Date();
+                        now.setHours(0,0,0,0);
+                        const isPast = dateObj.date < now;
 
                         return (
                             <div
                                 key={index}
                                 onClick={() => !isPast && handleDayClick(dateObj.date)}
                                 className={`
-                                    flex items-center justify-center w-full aspect-square rounded-full transition duration-150 text-base
-                                    ${!dateObj.isCurrentMonth ? 'text-text-placeholder opacity-50' : ''}
-                                    ${isPast ? 'text-text-placeholder cursor-not-allowed opacity-30' : 'cursor-pointer'}
-                                    ${isSelected ? 'bg-gold-accent text-dark-bg font-bold shadow-md' : isPast ? '' : 'text-text-light hover:bg-white/10'}
-                                `}
+                                flex items-center justify-center w-full aspect-square rounded-full transition duration-150 text-base
+                                ${!dateObj.isCurrentMonth ? 'text-gray-600 opacity-50' : ''}
+                                ${isPast ? 'text-gray-600 cursor-not-allowed opacity-30' : 'cursor-pointer'}
+                                ${isSelected ? 'bg-gold-accent text-dark-bg font-bold shadow-md' : isPast ? '' : 'text-text-light hover:bg-white/10'}
+                            `}
                             >
                                 {dateObj.day}
                             </div>
@@ -191,9 +135,9 @@ const AppointmentApp = () => {
 
             {/* Horarios Disponibles */}
             {selectedService && selectedDate && (
-                <div className="mb-8">
-                    <h4 className="text-xl font-bold text-text-light mb-4">
-                        Horarios disponibles para {selectedDate.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' })}:
+                <div className="mb-8 fade-in">
+                    <h4 className="text-xl font-bold mb-4">
+                        Horarios para {selectedDate.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric' })}:
                     </h4>
                     <div className="flex flex-wrap gap-3">
                         {availableSlots.length > 0 ? (
@@ -203,35 +147,31 @@ const AppointmentApp = () => {
                                     <button
                                         key={slotTime}
                                         onClick={() => handleSlotClick(slotTime)}
-                                        className={`px-4 py-2 rounded-xl border font-medium transition duration-200 
+                                        className={`px-4 py-2 rounded-xl border font-medium transition duration-200 flex items-center
                                             ${isSelected ? 'bg-gold-secondary text-dark-bg border-gold-secondary shadow-lg' : 'bg-dark-surface text-text-light border-white/10 hover:bg-white/10'}
                                         `}
                                     >
-                                        <Clock className='inline w-4 h-4 mr-1'/> {slotTime}
+                                        <Clock className='w-4 h-4 mr-2'/> {slotTime}
                                     </button>
                                 );
                             })
                         ) : (
-                            <p className="text-text-secondary">No hay horarios disponibles para el servicio y día seleccionados. Intenta otro día.</p>
+                            <p className="text-gray-500 italic">No hay horarios disponibles. Intenta otro día.</p>
                         )}
                     </div>
                 </div>
             )}
 
-            {/* Modal de Cita */}
-            <AppointmentModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                slot={selectedSlotTime}
-                date={selectedSlotTime ? buildAppointmentDate(selectedDate, selectedSlotTime) : selectedDate}
-                serviceName={selectedService}
-                onConfirm={handleConfirmAppointment}
-            />
-
-            {/* Sección de Promociones */}
-            {/* ... (Tu JSX de la sección de promociones) ... */}
+            {/* Modal */}
+            {isModalOpen && (
+                <AppointmentModal
+                    isOpen={isModalOpen}
+                    setIsOpen={setIsModalOpen}
+                    serviceDetails={serviceDetails}
+                    selectedDate={selectedDate}
+                    selectedTime={selectedSlotTime}
+                />
+            )}
         </div>
     );
-};
-
-export default AppointmentApp;
+}
