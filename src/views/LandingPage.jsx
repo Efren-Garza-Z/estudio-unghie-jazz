@@ -11,7 +11,7 @@ import dualSystemImg from '../assets/services/dual-system/img-1.jpeg';
 // Datos de servicios sin precios, solo descripción
 const servicesData = [
     { name: 'Manicura Clásica', description: 'Cuidado completo de uñas, cutículas y exfoliación.', img: manicuraClasicaImg },
-    { name: 'Gel semipermanente', description: 'Color brillante y duradero por 3+ semanas con secado UV.', img: gelSemipermanenteImg },
+    { name: 'Semipermanente', description: 'Color brillante y duradero por 3+ semanas con secado UV.', img: gelSemipermanenteImg },
     { name: 'Polygel', description: 'Extensión fuerte, ligera y flexible. Ideal para uñas largas.', img: polygelImg },
     { name: 'Soft Gel', description: 'Extensión con tip completo, rápido y con aspecto natural.', img: softGelImg },
     { name: 'Dual System', description: 'Extensión con tip completo, rápido y con aspecto natural.', img: dualSystemImg }
@@ -114,13 +114,13 @@ const LandingPage = () => {
                             {socialLinks.addressText}
                         </p>
                         <p className="text-text-secondary text-base leading-relaxed">
-                            Por definir instrucciones claras para llegar al estudio desde puntos de referencia comunes en la ciudad.
+                            Estamos ubicados frente al gimnasio y a una cuadra paralela del Parque Hidalgo.
                         </p>
                         <a 
                             href={socialLinks.address} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center px-6 py-3 bg-gold-secondary/20 text-gold-accent font-semibold rounded-xl hover:bg-gold-secondary/30 transition duration-200 text-sm shadow-sm"
+                            className="inline-flex items-center px-6 py-3 bg-gold-accent text-dark-bg font-semibold rounded-xl hover:bg-gold-secondary/30 transition duration-200 text-sm shadow-sm"
                         >
                             Abrir en Google Maps <MapPin className="w-5 h-5 ml-2" />
                         </a>

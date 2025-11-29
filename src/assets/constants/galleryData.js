@@ -27,28 +27,53 @@ import semipermanente4 from '../services/semipermanente/img-4.jpeg';
 import softGel1 from '../services/soft-gel/img-1.jpeg';
 import softGel2 from '../services/soft-gel/img-2.jpeg';
 
+// --- disenos ---
+import diseno1 from '../services/disenos/i-1.jpeg';
+import diseno2 from '../services/disenos/i-2.jpeg';
+import diseno3 from '../services/disenos/i-3.jpeg';
+import diseno4 from '../services/disenos/i-4.jpeg';
+import diseno5 from '../services/disenos/i-5.jpeg';
+import diseno6 from '../services/disenos/i-6.jpeg';
+import diseno7 from '../services/disenos/i-7.jpeg';
+import diseno8 from '../services/disenos/i-8.jpeg';
+import diseno9 from '../services/disenos/i-9.jpeg';
+import diseno10 from '../services/disenos/i-10.jpeg';
+import diseno11 from '../services/disenos/i-11.jpeg';
+
 // =========================================================
 // 🖼️ ESTRUCTURA DE LA GALERÍA
 // =========================================================
 
 export const galleryData = [
+    {
+        title: 'Diseños Jazz',
+        images: [
+            diseno1,
+            diseno2,
+            diseno3,
+            diseno4,
+            diseno5,
+            diseno6,
+            diseno7,
+            diseno8,
+            diseno9,
+            diseno10,
+            diseno11,
+        ]
+    },
     { 
         title: 'Manicura y Acabados Clásicos', 
         images: [
             clasica1, 
             clasica2, 
             clasica3,
-            // Placeholder si necesitas más para mantener el carrusel lleno
-            'https://placehold.co/400x500/383838/AEAEB2?text=Mas+Diseños+Pronto',
         ] 
     },
     { 
         title: 'Extensiones Polygel', 
         images: [
             polygel1, 
-            polygel2, 
-            // Placeholder para completar
-            'https://placehold.co/400x500/1D1D1D/FFD700?text=Uñas+Esculpidas+Polygel',
+            polygel2,
         ] 
     },
     { 
@@ -66,8 +91,6 @@ export const galleryData = [
             softGel1, 
             softGel2, 
             dualSystem1,
-            // Puedes incluir imágenes del arte más complejo aquí para Soft/Dual
-            'https://placehold.co/400x500/383838/AEAEB2?text=Diseño+Acrílico+Soft+Gel',
         ] 
     },
 ];
