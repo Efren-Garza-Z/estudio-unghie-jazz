@@ -72,22 +72,25 @@ export default function AppointmentApp({ appointments }) {
 
     return (
         <div className="p-4 max-w-xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Reservar Cita</h1>
+            <h1 className="text-2xl font-bold mb-4">Selecciona un Servicio:</h1>
 
             {/* Selección de servicio */}
+            <div className="mb-6">
+
             <label className="block mb-2 font-semibold">Servicio</label>
-            <select
-                className="border p-2 rounded w-full mb-6"
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
-            >
-                <option value="">Selecciona un servicio</option>
-                {servicesData.map((s) => (
-                    <option key={s.name} value={s.name}>
-                        {s.name} ({s.duration} min)
-                    </option>
-                ))}
-            </select>
+                <select
+                    className="w-full bg-dark-card border border-white/10 text-text-light rounded-xl py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-gold-accent transition cursor-pointer"
+                    value={selectedService}
+                    onChange={(e) => setSelectedService(e.target.value)}
+                >
+                    <option value="">Selecciona un servicio</option>
+                    {servicesData.map((s) => (
+                        <option key={s.name} value={s.name}>
+                            {s.name} ({s.duration} min)
+                        </option>
+                    ))}
+                </select>
+            </div>
 
             {/* Calendario (Solo visible si hay servicio seleccionado para mejor UX, opcional) */}
             <div className="bg-dark-card text-white p-6 rounded-3xl shadow-lg border border-white/10 mb-8">
