@@ -11,7 +11,7 @@ import dualSystemImg from '../assets/services/dual-system/img-1.jpeg';
 // Datos de servicios sin precios, solo descripción
 const servicesData = [
     { name: 'Manicura Clásica', description: 'Cuidado completo de uñas, cutículas y exfoliación.', img: manicuraClasicaImg },
-    { name: 'Gel semipermanente', description: 'Color brillante y duradero por 3+ semanas con secado UV.', img: gelSemipermanenteImg },
+    { name: 'Semipermanente', description: 'Color brillante y duradero por 3+ semanas con secado UV.', img: gelSemipermanenteImg },
     { name: 'Polygel', description: 'Extensión fuerte, ligera y flexible. Ideal para uñas largas.', img: polygelImg },
     { name: 'Soft Gel', description: 'Extensión con tip completo, rápido y con aspecto natural.', img: softGelImg },
     { name: 'Dual System', description: 'Extensión con tip completo, rápido y con aspecto natural.', img: dualSystemImg }

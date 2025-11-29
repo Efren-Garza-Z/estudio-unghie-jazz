@@ -1,8 +1,7 @@
 import ImageCarousel from '../components/ImageCarousel';
 import { Sparkles, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom'; // Importamos Link
-// 🛑 Importamos los datos de la galería centralizados
-import { galleryData } from '../assets/constants/galleryData'; 
+import { galleryData } from '../assets/constants/galleryData';
 
 
 const ServicesGalleryScreen = () => {

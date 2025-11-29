@@ -137,7 +137,7 @@ export default function AppointmentApp({ appointments }) {
             {selectedService && selectedDate && (
                 <div className="mb-8 fade-in">
                     <h4 className="text-xl font-bold mb-4">
-                        Horarios para {selectedDate.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric' })}:
+                        Horarios disponibles para {selectedDate.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' })}:
                     </h4>
                     <div className="flex flex-wrap gap-3">
                         {availableSlots.length > 0 ? (
